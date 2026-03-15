@@ -16,7 +16,7 @@ describe("Calculator functions", function(){
   });
 
   it("divides numbers correctly", function(){
-    assert.strictEqual(calc.sub(5,10),0.5);
+    assert.strictEqual(calc.divide(5,10),0.5);
   });
 
 });
