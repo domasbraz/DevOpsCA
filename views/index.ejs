@@ -2,14 +2,21 @@
 <html>
   <head>
     <title><%= title %></title>
+    <script src="js/calc.js"></script>
   </head>
   <body>
     <h1><%= title %></h1>
-    <ul>
-      <li>Coffee</li>
-      <li>Tea</li>
-      <li>Milk</li>
-      <li>add more...</li>
-    </ul>
+    
+    <input type="number" id="num1" value="0">
+    <select id="selection">
+      <option value="Add">Add</option>
+      <option value="Subtract">Subtract</option>
+      <option value="Multiply">Multiply</option>
+      <option value="Divide">Divide</option>
+    </select>
+    <input type="number" id="num2" value="0">
+    <input type="button" value="Calculate" onclick="showResult()">
+  
+    <h3>Result: <result></result></h3>
   </body>
 </html>
