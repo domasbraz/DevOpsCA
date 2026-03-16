@@ -10,25 +10,43 @@ orbs:
 
 jobs:
   deploy:
-    docker:
-      - image: cimg/base:stable
+      docker:
+        - image: cimg/base:stable
 
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "SHA256:8I7Pcgm3a3t7PY9DjbJ6fJtDBso4lDy/CcQdw4K1w/I"
+      steps:
+        - add_ssh_keys:
+            fingerprints:
+              - "SHA256:8I7Pcgm3a3t7PY9DjbJ6fJtDBso4lDy/CcQdw4K1w/I"
 
-      - run:
-          name: Deploy to EC2
-          command: |
-            ssh ubuntu@ec2-13-222-183-56.compute-1.amazonaws.com "
-              cd DevOpsCA &&
-              git pull &&
-              npm install &&
-              pm2 restart all
-            "
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/guides/orchestrate/workflows/ & https://circleci.com/docs/reference/configuration-reference/#workflows
+        - run:
+            name: Plan deployment
+            command: |
+              circleci run release plan "${CIRCLE_JOB}" \
+                --environment-name="default" \
+                --component-name="${CIRCLE_PROJECT_REPONAME}" \
+                --target-version="1.0.${CIRCLE_BUILD_NUM}-${CIRCLE_SHA1:0:7}"
+        - run:
+            name: Deploy to EC2
+            command: |
+              ssh ubuntu@ec2-13-222-183-56.compute-1.amazonaws.com "
+                cd DevOpsCA &&
+                git pull &&
+                npm install &&
+                pm2 restart all
+              "
+        - run:
+            name: Update deployment status to running
+            command: circleci run release update "${CIRCLE_JOB}" --status=RUNNING
+        # Orchestrate jobs using workflows
+        # See: https://circleci.com/docs/guides/orchestrate/workflows/ & https://circleci.com/docs/reference/configuration-reference/#workflows
+        - run:
+            name: Update deployment status to success
+            command: circleci run release update "${CIRCLE_JOB}" --status=SUCCESS
+            when: on_success
+        - run:
+            name: Update deployment status to failed
+            command: circleci run release update "${CIRCLE_JOB}" --status=FAILED
+            when: on_fail
 workflows:
   sample: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
