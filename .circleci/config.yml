@@ -8,6 +8,25 @@ orbs:
   # See the Node orb documentation here: https://circleci.com/developer/orbs/orb/circleci/node
   node: circleci/node@5.2
 
+jobs:
+  deploy:
+    docker:
+      - image: cimg/base:stable
+
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:8I7Pcgm3a3t7PY9DjbJ6fJtDBso4lDy/CcQdw4K1w/I"
+
+      - run:
+          name: Deploy to EC2
+          command: |
+            ssh ubuntu@ec2-13-222-183-56.compute-1.amazonaws.com "
+              cd DevOpsCA &&
+              git pull &&
+              npm install &&
+              pm2 restart all
+            "
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/guides/orchestrate/workflows/ & https://circleci.com/docs/reference/configuration-reference/#workflows
 workflows:
