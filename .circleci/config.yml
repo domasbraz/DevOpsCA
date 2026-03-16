@@ -25,10 +25,15 @@ jobs:
                 --environment-name="default" \
                 --component-name="${CIRCLE_PROJECT_REPONAME}" \
                 --target-version="1.0.${CIRCLE_BUILD_NUM}-${CIRCLE_SHA1:0:7}"
+
+        - run:
+          name: Add EC2 host to known_hosts
+          command: ssh-keyscan $ec2 >> ~/.ssh/known_hosts
+
         - run:
             name: Deploy to EC2
             command: |
-              ssh ubuntu@ec2-13-222-183-56.compute-1.amazonaws.com "
+              ssh ubuntu@$ec2 "
                 cd DevOpsCA &&
                 git pull &&
                 npm install &&
